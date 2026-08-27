@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A9 Tableau de bord - Suivi Modifications Process Injection - CLAYENS</title>
+<style>
+  :root{
+    --orange:#F47920;
+    --orange-dark:#D9650F;
+    --dark:#1e2129;
+    --grey:#6b7280;
+    --light-bg:#f7f7f8;
+    --border:#e2e2e5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:'Segoe UI', Arial, sans-serif;
+    margin:0;
+    background:var(--light-bg);
+    color:#222;
+  }
+  header{
+    background:var(--dark);
+    color:#fff;
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  header .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  header .brand .logo{
+    font-weight:800;
+    font-size:22px;
+    color:var(--orange);
+    letter-spacing:1px;
+  }
+  header .brand .sep{
+    width:1px;height:28px;background:#444;
+  }
+  header .brand h1{
+    font-size:18px;
+    margin:0;
+    font-weight:600;
+  }
+  header .user{
+    font-size:14px;
+    color:#ddd;
+    display:flex;align-items:center;gap:6px;
+  }
+  .container{
+    max-width:760px;
+    margin:32px auto;
+    padding:0 16px 60px;
+  }
+  .card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .of-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    border:1.5px solid var(--orange);
+    color:var(--orange);
+    font-weight:700;
+    padding:10px 18px;
+    border-radius:8px;
+    background:#fff5ec;
+    margin-bottom:24px;
+  }
+  .of-tag.valid{
+    border-color:#2e9e4f;
+    color:#2e9e4f;
+    background:#eefaf1;
+  }
+  .regleur-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color:var(--grey);
+    font-weight:600;
+    font-size:13px;
+    padding:10px 18px 24px;
+  }
+  label{
+    font-weight:600;
+    font-size:14px;
+    display:block;
+    margin-bottom:8px;
+  }
+  label .req{color:var(--orange);}
+  input[type=text], input[type=number], select{
+    width:100%;
+    padding:14px 16px;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    font-size:16px;
+    background:#fff;
+    color:#222;
+  }
+  input:focus, select:focus{
+    outline:none;
+    border-color:var(--orange);
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:16px 24px;
+    border-radius:8px;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    border:none;
+    transition:0.15s;
+  }
+  .btn-primary{
+    background:var(--orange);
+    color:#fff;
+    width:100%;
+  }
+  .btn-primary:hover{background:var(--orange-dark);}
+  .btn-outline{
+    background:#fff;
+    color:var(--orange);
+    border:1.5px solid var(--orange);
+  }
+  .btn-outline:hover{background:#fff5ec;}
+  .btn-add{
+    background:#fff;
+    color:var(--orange);
+    border:1.5px dashed var(--orange);
+    padding:10px 16px;
+    font-size:14px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .btn-add:hover{background:#fff5ec;}
+  .btn-remove{
+    background:none;
+    border:none;
+    color:#c0392b;
+    cursor:pointer;
+    font-size:18px;
+    padding:0 8px;
+  }
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .maintab-content{display:none;}
+  .maintab-content.active{display:block;}
+  .tabs.maintabs{
+    display:flex;
+    background:var(--dark);
+    border-radius:10px;
+    padding:6px;
+    border:none;
+    margin-bottom:18px;
+  }
+  .tabs.maintabs .tab{
+    flex:1;
+    text-align:center;
+    color:#bbb;
+    font-size:14px;
+    font-weight:600;
+    padding:12px 10px;
+    border-radius:8px;
+    border-bottom:none;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .tabs.maintabs .tab.active{
+    background:var(--orange);
+    color:#fff;
+  }
+  .subtabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+    overflow-x:auto;
+  }
+  .subtab{
+    padding:9px 16px;
+    border-radius:20px;
+    border:1.5px solid var(--border);
+    color:var(--grey);
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .subtab.active{
+    border-color:var(--orange);
+    color:var(--orange);
+    background:#fff5ec;
+  }
+  .param-block{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:18px;
+    margin-bottom:16px;
+    background:#fbfbfc;
+  }
+  .param-block-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .param-block-head h3{
+    margin:0;
+    font-size:15px;
+  }
+  .unit-select-wrap{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .unit-select-wrap label{
+    margin:0;
+    font-size:12px;
+    font-weight:600;
+    color:var(--grey);
+    white-space:nowrap;
+  }
+  .unit-select-wrap select{
+    width:auto;
+    padding:8px 10px;
+    font-size:13px;
+    min-width:140px;
+  }
+  .unit-fixed{
+    font-size:12px;
+    font-weight:600;
+    color:var(--grey);
+    background:#eee;
+    padding:6px 12px;
+    border-radius:6px;
+  }
+  .palier-header{
+    display:grid;
+    grid-template-columns: 90px 1fr 1fr 30px;
+    gap:10px;
+    font-size:13px;
+    color:var(--grey);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .palier-row{
+    display:grid;
+    grid-template-columns: 90px 1fr 1fr 30px;
+    gap:10px;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .palier-row span{font-size:14px;font-weight:600;}
+  .simple-row{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+    margin-bottom:6px;
+  }
+  .zone-row{
+    display:grid;
+    grid-template-columns: 130px 1fr 1fr;
+    gap:14px;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .zone-row span{font-weight:600;font-size:14px;}
+  .col-labels{
+    display:grid;
+    grid-template-columns: 130px 1fr 1fr;
+    gap:14px;
+    font-size:12px;
+    color:var(--grey);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .actions-row{
+    display:flex;
+    gap:12px;
+    margin-top:24px;
+  }
+  .hidden{display:none !important;}
+  #screen1{max-width:480px;margin:60px auto;}
+  #screen1 .icon-wrap{
+    text-align:center;
+    font-size:52px;
+    color:var(--orange);
+    margin-bottom:10px;
+  }
+  #screen1 h2{
+    text-align:center;
+    font-size:20px;
+    margin-bottom:24px;
+  }
+  .steps{
+    font-size:13px;color:#ccc;
+  }
+  .steps b{color:var(--orange);}
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#2e9e4f;
+    color:#fff;
+    padding:14px 26px;
+    border-radius:8px;
+    font-weight:600;
+    box-shadow:0 4px 14px rgba(0,0,0,0.2);
+    display:none;
+    z-index:100;
+  }
+  .history{
+    margin-top:30px;
+  }
+  .history h3{font-size:15px;margin-bottom:10px;}
+  .history-item{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 16px;
+    margin-bottom:8px;
+    font-size:13px;
+    background:#fff;
+  }
+  .history-item .h-top{
+    display:flex;
+    justify-content:space-between;
+    font-weight:700;
+    color:var(--orange-dark);
+    margin-bottom:4px;
+  }
+  .error-msg{
+    color:#c0392b;
+    font-size:13px;
+    margin-top:-6px;
+    margin-bottom:14px;
+    display:none;
+  }
+  footer{
+    text-align:center;
+    color:var(--grey);
+    font-size:12px;
+    padding:20px;
+  }
+  .modal-overlay{
+    position:fixed;
+    top:0;left:0;right:0;bottom:0;
+    background:rgba(0,0,0,0.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:200;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:#fff;
+    border-radius:10px;
+    padding:26px;
+    max-width:440px;
+    width:90%;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+  }
+  .modal-box h3{
+    margin:0 0 6px 0;
+    font-size:17px;
+  }
+  .modal-box p{
+    margin:0 0 16px 0;
+    font-size:13px;
+    color:var(--grey);
+  }
+  .modal-box textarea{
+    width:100%;
+    min-height:100px;
+    padding:12px 14px;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    font-size:15px;
+    font-family:inherit;
+    resize:vertical;
+  }
+  .modal-box textarea:focus{
+    outline:none;
+    border-color:var(--orange);
+  }
+  .modal-actions{
+    display:flex;
+    gap:12px;
+    margin-top:18px;
+  }
+  .modal-error{
+    color:#c0392b;
+    font-size:13px;
+    margin-top:8px;
+    display:none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">CLAYENS</div>
+    <div class="sep"></div>
+    <h1 id="pageTitle">A9 Tableau de bord — Suivi Modifications Process Injection</h1>
+  </div>
+  <div class="user">👤 <span id="headerRegleur">Régleur</span> <span id="stepIndicator" class="steps"></span></div>
+</header>
+
+<div class="container">
+
+  <!-- SCREEN 1 : OF + REGLEUR -->
+  <div id="screen1" class="card">
+    <div class="icon-wrap">🛠️</div>
+    <h2>Saisir le numéro d'OF</h2>
+    <label>N° OF <span class="req">*</span></label>
+    <input type="text" id="ofInput" placeholder="FF26201122/20" autocomplete="off" maxlength="13">
+    <div style="font-size:12px;color:var(--grey);margin-top:6px;margin-bottom:4px;">Format attendu : 2 lettres + 8 chiffres + / + 2 chiffres (ex. FF26201122/20)</div>
+    <div class="error-msg" id="ofError">Format invalide. Merci de respecter le format : FF26201122/20 (2 lettres, 8 chiffres, /, 2 chiffres).</div>
+
+    <label style="margin-top:18px;">Nom / Prénom du régleur <span class="req">*</span></label>
+    <input type="text" id="regleurInput" placeholder="ex : DUPONT Jean" autocomplete="off">
+    <div class="error-msg" id="regleurError">Merci de saisir le nom et prénom du régleur.</div>
+
+    <br>
+    <button class="btn btn-primary" onclick="validateOF()">Valider &rsaquo;</button>
+  </div>
+
+  <!-- SCREEN 2 : DECLARATION -->
+  <div id="screen2" class="hidden">
+    <div class="card">
+      <span class="of-tag valid">✔ OF : <span id="ofDisplay"></span></span>
+      <button class="btn-outline btn" style="width:auto;float:right;padding:8px 14px;font-size:13px;" onclick="backToScreen1()">‹ Changer d'OF</button>
+      <div style="clear:both;"></div>
+      <div class="regleur-tag">👤 Régleur : <span id="regleurDisplay"></span></div>
+
+      <label>Type de rebut <span class="req">*</span></label>
+      <select id="rebutSelect">
+        <option value="">Sélectionner un type de rebut</option>
+        <option>Bavure</option>
+        <option>Retassure</option>
+        <option>Incomplète</option>
+        <option>Aspect</option>
+        <option>Pollution</option>
+        <option>Ligne de soudure</option>
+        <option>Déformation</option>
+        <option>Insert NC</option>
+        <option>Coloration</option>
+        <option value="Autre">Autre</option>
+      </select>
+      <div class="error-msg" id="rebutError">Merci de sélectionner un type de rebut.</div>
+
+      <label style="margin-top:18px;">Commentaire</label>
+      <textarea id="commentaireGeneral" rows="3" placeholder="Précisions complémentaires (optionnel)..." style="width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;font-family:inherit;resize:vertical;"></textarea>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:14px;">Paramètre modifié <span class="req">*</span></label>
+
+      <!-- MAIN TABS -->
+      <div class="tabs maintabs" id="mainTabs">
+        <div class="tab active" data-maintab="process">⚙️ Process injection</div>
+        <div class="tab" data-maintab="temperatures">🌡️ Températures</div>
+        <div class="tab" data-maintab="moule">🏭 Moule</div>
+      </div>
+
+      <!-- ============ GROUPE : PROCESS INJECTION ============ -->
+      <div class="maintab-content active" id="maintab-process">
+        <div class="subtabs" id="subTabs-process">
+          <div class="subtab active" data-tab="dosage">🧪 Dosage</div>
+          <div class="subtab" data-tab="dynamique">⏱️ Dynamique</div>
+          <div class="subtab" data-tab="maintien">🧷 Maintien</div>
+        </div>
+
+        <!-- DOSAGE -->
+        <div class="tab-content active" id="tab-dosage">
+          <div class="param-block" data-param-group="Vitesse de rotation" data-initial-paliers="1">
+            <div class="param-block-head">
+              <h3>Vitesse de rotation (paliers)</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Vitesse de rotation">
+                  <option value="Tr/Min">Tr/Min</option>
+                  <option value="M/s">M/s</option>
+                </select>
+              </div>
+            </div>
+            <div class="palier-header"><span></span><span>Avant</span><span>Après</span><span></span></div>
+            <div class="palier-list"></div>
+            <button class="btn-add" onclick="addPalier(this)">+ Ajouter un palier</button>
+          </div>
+          <div class="param-block" data-param-group="Contre-pression">
+            <div class="param-block-head">
+              <h3>Contre-pression</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Contre-pression">
+                  <option value="bar">bar</option>
+                  <option value="bar hydraulique">bar hydraulique</option>
+                </select>
+              </div>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Contre-pression|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Contre-pression|Après"></div>
+            </div>
+          </div>
+          <div class="param-block" data-param-group="Décompression">
+            <div class="param-block-head">
+              <h3>Décompression</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Décompression">
+                  <option value="mm">mm</option>
+                  <option value="cm3/s">cm³/s</option>
+                </select>
+              </div>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Décompression|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Décompression|Après"></div>
+            </div>
+          </div>
+          <div class="param-block" data-param-group="Temps de refroidissement">
+            <div class="param-block-head">
+              <h3>Temps de refroidissement</h3>
+              <span class="unit-fixed">Unité : secondes</span>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Temps de refroidissement|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Temps de refroidissement|Après"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DYNAMIQUE -->
+        <div class="tab-content" id="tab-dynamique">
+          <div class="param-block" data-param-group="Vitesse">
+            <div class="param-block-head">
+              <h3>Vitesse (paliers)</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Vitesse">
+                  <option value="mm/s">mm/s</option>
+                  <option value="cm3/s">cm³/s</option>
+                </select>
+              </div>
+            </div>
+            <div class="palier-header"><span></span><span>Avant</span><span>Après</span><span></span></div>
+            <div class="palier-list"></div>
+            <button class="btn-add" onclick="addPalier(this)">+ Ajouter un palier</button>
+          </div>
+          <div class="param-block" data-param-group="Point de commutation (course)">
+            <div class="param-block-head">
+              <h3>Valeur du point de commutation en course</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Point de commutation (course)">
+                  <option value="mm">mm</option>
+                  <option value="cm3">cm³</option>
+                </select>
+              </div>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Point de commutation (course)|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Point de commutation (course)|Après"></div>
+            </div>
+          </div>
+          <div class="param-block" data-param-group="Point de commutation (pression)">
+            <div class="param-block-head">
+              <h3>Valeur du point de commutation en pression</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Point de commutation (pression)">
+                  <option value="bar">bar</option>
+                  <option value="bar hydraulique">bar hydraulique</option>
+                </select>
+              </div>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Point de commutation (pression)|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Point de commutation (pression)|Après"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAINTIEN -->
+        <div class="tab-content" id="tab-maintien">
+          <div class="param-block" data-param-group="Pression (Maintien)">
+            <div class="param-block-head">
+              <h3>Pression (paliers)</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Pression (Maintien)">
+                  <option value="bar">bar</option>
+                  <option value="bar hydraulique">bar hydraulique</option>
+                </select>
+              </div>
+            </div>
+            <div class="palier-header"><span></span><span>Avant</span><span>Après</span><span></span></div>
+            <div class="palier-list"></div>
+            <button class="btn-add" onclick="addPalier(this)">+ Ajouter un palier</button>
+          </div>
+          <div class="param-block" data-param-group="Temps (Maintien)">
+            <div class="param-block-head">
+              <h3>Temps (paliers)</h3>
+              <span class="unit-fixed">Unité : secondes</span>
+            </div>
+            <div class="palier-header"><span></span><span>Avant</span><span>Après</span><span></span></div>
+            <div class="palier-list"></div>
+            <button class="btn-add" onclick="addPalier(this)">+ Ajouter un palier</button>
+          </div>
+        </div>
+      </div>
+      <!-- fin GROUPE process -->
+
+      <!-- ============ GROUPE : TEMPÉRATURES ============ -->
+      <div class="maintab-content" id="maintab-temperatures">
+        <div class="subtabs" id="subTabs-temperatures">
+          <div class="subtab active" data-tab="temperature">🌡️ Fourreau</div>
+          <div class="subtab" data-tab="blocchaud">🔥 Bloc chaud</div>
+        </div>
+
+        <!-- TEMPERATURE FOURREAU -->
+        <div class="tab-content active" id="tab-temperature">
+          <div class="param-block">
+            <div class="param-block-head">
+              <h3>Zones température fourreau</h3>
+              <span class="unit-fixed">Unité : °C</span>
+            </div>
+            <div class="col-labels"><span></span><span>Avant</span><span>Après</span></div>
+            <div class="zone-row"><span>Buse</span><input type="number" step="any" data-field="Buse|Avant"><input type="number" step="any" data-field="Buse|Après"></div>
+            <div class="zone-row"><span>Zone 1</span><input type="number" step="any" data-field="Zone 1|Avant"><input type="number" step="any" data-field="Zone 1|Après"></div>
+            <div class="zone-row"><span>Zone 2</span><input type="number" step="any" data-field="Zone 2|Avant"><input type="number" step="any" data-field="Zone 2|Après"></div>
+            <div class="zone-row"><span>Zone 3</span><input type="number" step="any" data-field="Zone 3|Avant"><input type="number" step="any" data-field="Zone 3|Après"></div>
+            <div class="zone-row"><span>Zone 4</span><input type="number" step="any" data-field="Zone 4|Avant"><input type="number" step="any" data-field="Zone 4|Après"></div>
+            <div class="zone-row"><span>Zone 5</span><input type="number" step="any" data-field="Zone 5|Avant"><input type="number" step="any" data-field="Zone 5|Après"></div>
+            <div class="zone-row"><span>Zone 6</span><input type="number" step="any" data-field="Zone 6|Avant"><input type="number" step="any" data-field="Zone 6|Après"></div>
+            <div class="zone-list" id="extraZoneList"></div>
+            <button class="btn-add" id="addZoneBtn" onclick="addZone()">+ Ajouter une zone</button>
+          </div>
+        </div>
+
+        <!-- TEMPERATURE BLOC CHAUD -->
+        <div class="tab-content" id="tab-blocchaud">
+          <div class="param-block">
+            <div class="param-block-head">
+              <h3>Zones température bloc chaud</h3>
+              <span class="unit-fixed">Unité : °C</span>
+            </div>
+            <div class="col-labels"><span></span><span>Avant</span><span>Après</span></div>
+            <div id="blocChaudZoneList"></div>
+            <button class="btn-add" id="addBlocChaudZoneBtn" onclick="addBlocChaudZone()">+ Ajouter une zone</button>
+          </div>
+        </div>
+      </div>
+      <!-- fin GROUPE températures -->
+
+      <!-- ============ GROUPE : MOULE ============ -->
+      <div class="maintab-content" id="maintab-moule">
+        <div class="tab-content active" id="tab-moule">
+          <div class="param-block" data-param-group="Force de verrouillage">
+            <div class="param-block-head">
+              <h3>Force de verrouillage</h3>
+              <div class="unit-select-wrap">
+                <label>Unité</label>
+                <select data-unit-for="Force de verrouillage">
+                  <option value="Tonne">Tonne</option>
+                  <option value="KN">KN</option>
+                </select>
+              </div>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Force de verrouillage|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Force de verrouillage|Après"></div>
+            </div>
+          </div>
+          <div class="param-block">
+            <div class="param-block-head">
+              <h3>Température outillage</h3>
+              <span class="unit-fixed">Unité : °C</span>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Température outillage|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Température outillage|Après"></div>
+            </div>
+          </div>
+          <div class="param-block">
+            <div class="param-block-head">
+              <h3>Régulation outillage</h3>
+              <span class="unit-fixed">Unité : °C</span>
+            </div>
+            <div class="simple-row">
+              <div><label style="font-weight:500;font-size:13px;">Avant</label><input type="number" step="any" data-field="Régulation outillage|Avant"></div>
+              <div><label style="font-weight:500;font-size:13px;">Après</label><input type="number" step="any" data-field="Régulation outillage|Après"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- fin GROUPE moule -->
+
+      <div id="saveLocationNote" style="font-size:12px;color:var(--grey);margin-bottom:14px;"></div>
+
+      <div class="actions-row">
+        <button class="btn btn-primary" onclick="saveIntervention()">💾 Enregistrer l'intervention</button>
+        <button class="btn btn-outline" onclick="resetForm()">✕ Annuler</button>
+      </div>
+    </div>
+
+    <div class="card history">
+      <h3>📋 Historique des interventions (session d'essai)</h3>
+      <div id="historyList"><em style="color:#999;font-size:13px;">Aucune intervention enregistrée pour le moment.</em></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">✔ Intervention enregistrée — fichier JSON exporté</div>
+
+<!-- Modal : commentaire obligatoire pour rebut "Autre" -->
+<div class="modal-overlay" id="autreModal">
+  <div class="modal-box">
+    <h3>🗒️ Précisez le type de rebut</h3>
+    <p>Vous avez sélectionné « Autre ». Merci de décrire le type de rebut constaté (champ obligatoire).</p>
+    <textarea id="autreCommentInput" placeholder="Décrivez le type de rebut..."></textarea>
+    <div class="modal-error" id="autreCommentError">Le commentaire est obligatoire pour valider ce type de rebut.</div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="confirmAutreComment()">Valider</button>
+      <button class="btn btn-outline" onclick="cancelAutreComment()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<footer>CLAYENS – A9 Tableau de bord / Prototype d'essai / Suivi Modifications Process Injection</footer>
+
+<script>
+let currentOF = "";
+let currentRegleur = "";
+let history_ = [];
+
+// Format verrouillé du N° OF : LL DDDDDDDD / DD (ex. FF26201122/20)
+const OF_PATTERN = /^[A-Z]{2}\d{8}\/\d{2}$/;
+
+const ofInputEl = document.getElementById('ofInput');
+ofInputEl.addEventListener('input', (e)=>{
+  let raw = e.target.value.toUpperCase();
+  raw = raw.replace(/[^A-Z0-9\/]/g, '');
+  let lettres = raw.replace(/[^A-Z]/g, '').slice(0, 2);
+  let reste = raw.replace(/^[A-Z]*/, '').replace(/\//g, '');
+  let chiffres1 = reste.replace(/[^0-9]/g, '').slice(0, 8);
+  let chiffres2 = reste.replace(/[^0-9]/g, '').slice(8, 10);
+
+  let formatted = lettres;
+  if(chiffres1) formatted += chiffres1;
+  if(chiffres1.length === 8) formatted += '/' + chiffres2;
+
+  e.target.value = formatted;
+});
+
+function validateOF(){
+  const val = document.getElementById('ofInput').value.trim().toUpperCase();
+  const regleurVal = document.getElementById('regleurInput').value.trim();
+  const err = document.getElementById('ofError');
+  const regleurErr = document.getElementById('regleurError');
+  let hasError = false;
+
+  if(!OF_PATTERN.test(val)){
+    err.style.display = 'block';
+    hasError = true;
+  } else {
+    err.style.display = 'none';
+  }
+
+  if(regleurVal.length < 2){
+    regleurErr.style.display = 'block';
+    hasError = true;
+  } else {
+    regleurErr.style.display = 'none';
+  }
+
+  if(hasError) return;
+
+  currentOF = val;
+  currentRegleur = regleurVal;
+  document.getElementById('ofDisplay').textContent = currentOF;
+  document.getElementById('regleurDisplay').textContent = currentRegleur;
+  document.getElementById('headerRegleur').textContent = currentRegleur;
+  document.getElementById('screen1').classList.add('hidden');
+  document.getElementById('screen2').classList.remove('hidden');
+  document.getElementById('pageTitle').textContent = 'Déclaration Intervention';
+  document.getElementById('stepIndicator').innerHTML = 'Étape <b>2/2</b>';
+}
+
+function backToScreen1(){
+  document.getElementById('screen2').classList.add('hidden');
+  document.getElementById('screen1').classList.remove('hidden');
+  document.getElementById('pageTitle').textContent = 'A9 Tableau de bord — Suivi Modifications Process Injection';
+  document.getElementById('stepIndicator').innerHTML = '';
+}
+
+// Gestion du rebut "Autre" avec commentaire obligatoire en pop-up
+let autreComment = "";
+const rebutSelectEl = document.getElementById('rebutSelect');
+rebutSelectEl.addEventListener('change', ()=>{
+  if(rebutSelectEl.value === 'Autre'){
+    openAutreModal();
+  } else {
+    autreComment = "";
+  }
+});
+
+function openAutreModal(){
+  document.getElementById('autreCommentInput').value = autreComment;
+  document.getElementById('autreCommentError').style.display = 'none';
+  document.getElementById('autreModal').classList.add('show');
+  document.getElementById('autreCommentInput').focus();
+}
+
+function confirmAutreComment(){
+  const val = document.getElementById('autreCommentInput').value.trim();
+  if(val === ''){
+    document.getElementById('autreCommentError').style.display = 'block';
+    return;
+  }
+  autreComment = val;
+  document.getElementById('autreModal').classList.remove('show');
+}
+
+function cancelAutreComment(){
+  document.getElementById('autreModal').classList.remove('show');
+  if(autreComment === ''){
+    rebutSelectEl.value = '';
+  }
+}
+
+// Main tabs (Process injection / Températures / Moule)
+document.getElementById('mainTabs').addEventListener('click', (e)=>{
+  const tab = e.target.closest('.tab');
+  if(!tab) return;
+  document.querySelectorAll('#mainTabs .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.maintab-content').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('maintab-'+tab.dataset.maintab).classList.add('active');
+});
+
+// Sub-tabs (Dosage/Dynamique/Maintien, Fourreau/Bloc chaud, etc.)
+document.querySelectorAll('.subtabs').forEach(subtabGroup=>{
+  subtabGroup.addEventListener('click', (e)=>{
+    const tab = e.target.closest('.subtab');
+    if(!tab) return;
+    subtabGroup.querySelectorAll('.subtab').forEach(t=>t.classList.remove('active'));
+    const parentGroup = subtabGroup.closest('.maintab-content');
+    parentGroup.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Palier management
+function addPalier(btn){
+  const block = btn.closest('.param-block');
+  const list = block.querySelector('.palier-list');
+  const groupName = block.dataset.paramGroup;
+  const count = list.querySelectorAll('.palier-row').length + 1;
+  const row = document.createElement('div');
+  row.className = 'palier-row';
+  row.innerHTML = `
+    <span>Palier ${count}</span>
+    <input type="number" step="any" data-field="${groupName}|Palier ${count}|Avant">
+    <input type="number" step="any" data-field="${groupName}|Palier ${count}|Après">
+    <button type="button" class="btn-remove" onclick="removePalier(this)" title="Supprimer">✕</button>
+  `;
+  list.appendChild(row);
+}
+
+function removePalier(btn){
+  const block = btn.closest('.param-block');
+  btn.closest('.palier-row').remove();
+  const list = block.querySelector('.palier-list');
+  const groupName = block.dataset.paramGroup;
+  [...list.querySelectorAll('.palier-row')].forEach((row, idx)=>{
+    const n = idx+1;
+    row.querySelector('span').textContent = 'Palier '+n;
+    const inputs = row.querySelectorAll('input');
+    inputs[0].dataset.field = `${groupName}|Palier ${n}|Avant`;
+    inputs[1].dataset.field = `${groupName}|Palier ${n}|Après`;
+  });
+}
+
+// Zone management (température fourreau)
+let extraZoneCount = 6;
+function addZone(){
+  extraZoneCount++;
+  const list = document.getElementById('extraZoneList');
+  const row = document.createElement('div');
+  row.className = 'zone-row';
+  row.innerHTML = `
+    <span>Zone ${extraZoneCount}</span>
+    <input type="number" step="any" data-field="Zone ${extraZoneCount}|Avant">
+    <input type="number" step="any" data-field="Zone ${extraZoneCount}|Après">
+    <button type="button" class="btn-remove" onclick="removeZone(this)" title="Supprimer">✕</button>
+  `;
+  row.style.gridTemplateColumns = '130px 1fr 1fr 30px';
+  list.appendChild(row);
+}
+function removeZone(btn){
+  btn.closest('.zone-row').remove();
+}
+
+// Zone management (température bloc chaud) - démarre avec 16 zones par défaut
+let blocChaudZoneCount = 0;
+function addBlocChaudZone(){
+  blocChaudZoneCount++;
+  const n = blocChaudZoneCount;
+  const list = document.getElementById('blocChaudZoneList');
+  const row = document.createElement('div');
+  row.className = 'zone-row';
+  row.style.gridTemplateColumns = '130px 1fr 1fr 30px';
+  row.innerHTML = `
+    <span>Zone ${n}</span>
+    <input type="number" step="any" data-field="BlocChaud Zone ${n}|Avant">
+    <input type="number" step="any" data-field="BlocChaud Zone ${n}|Après">
+    <button type="button" class="btn-remove" onclick="removeBlocChaudZone(this)" title="Supprimer">✕</button>
+  `;
+  list.appendChild(row);
+}
+function removeBlocChaudZone(btn){
+  btn.closest('.zone-row').remove();
+}
+for(let i=0;i<16;i++){ addBlocChaudZone(); }
+
+// Initialisation des paliers par défaut (3 par défaut, override via data-initial-paliers)
+document.querySelectorAll('.param-block[data-param-group]').forEach(block=>{
+  const btn = block.querySelector('.btn-add');
+  if(btn){
+    const initialCount = parseInt(block.dataset.initialPaliers || '3', 10);
+    for(let i=0;i<initialCount;i++){ addPalier(btn); }
+  }
+});
+
+function getUnit(groupName){
+  const sel = document.querySelector(`[data-unit-for="${groupName}"]`);
+  return sel ? sel.value : null;
+}
+
+function collectData(){
+  const rebut = document.getElementById('rebutSelect').value;
+  const commentaireGeneral = document.getElementById('commentaireGeneral').value.trim();
+  const data = {
+    of: currentOF,
+    regleur: currentRegleur,
+    rebut: rebut,
+    commentaireGeneral: commentaireGeneral,
+    timestamp: new Date().toLocaleString('fr-FR'),
+    parametres: {}
+  };
+  document.querySelectorAll('[data-field]').forEach(inp=>{
+    if(inp.value === '') return;
+    const parts = inp.dataset.field.split('|');
+    if(parts.length === 2){
+      const [param, moment] = parts;
+      data.parametres[param] = data.parametres[param] || {};
+      data.parametres[param][moment] = inp.value;
+      const u = getUnit(param);
+      if(u) data.parametres[param].unite = u;
+    } else if(parts.length === 3){
+      const [group, palier, moment] = parts;
+      data.parametres[group] = data.parametres[group] || {};
+      const u = getUnit(group);
+      if(u) data.parametres[group].unite = u;
+      data.parametres[group][palier] = data.parametres[group][palier] || {};
+      data.parametres[group][palier][moment] = inp.value;
+    }
+  });
+  return data;
+}
+
+async function saveIntervention(){
+  const rebutErr = document.getElementById('rebutError');
+  const rebut = document.getElementById('rebutSelect').value;
+  if(!rebut){
+    rebutErr.style.display = 'block';
+    document.getElementById('rebutSelect').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  rebutErr.style.display = 'none';
+
+  if(rebut === 'Autre' && autreComment.trim() === ''){
+    openAutreModal();
+    return;
+  }
+
+  const data = collectData();
+  if(rebut === 'Autre'){
+    data.commentaireAutre = autreComment;
+  }
+  const keysWithoutUnit = Object.keys(data.parametres).filter(k => {
+    const v = data.parametres[k];
+    const entries = Object.keys(v).filter(kk => kk !== 'unite');
+    return entries.length > 0;
+  });
+  if(keysWithoutUnit.length === 0){
+    alert("Merci de renseigner au moins un paramètre modifié (valeur avant/après).");
+    return;
+  }
+
+  await exportJSON(data);
+  history_.unshift(data);
+  renderHistory();
+  showToast();
+  clearFormKeepOF();
+}
+
+// Génération du fichier JSON d'export (data plateforme)
+function buildExportPayload(data){
+  return {
+    NumeroOF: data.of,
+    ParametresModifies: data.parametres
+  };
+}
+
+// Dossier de sauvegarde choisi une fois par session (via File System Access API)
+// L'utilisateur sélectionne C:\ (ou tout autre dossier) au premier enregistrement ;
+// les enregistrements suivants s'écrivent ensuite directement dedans, sans nouvelle fenêtre.
+let savedDirHandle = null;
+const fsApiSupported = 'showDirectoryPicker' in window;
+
+async function getSaveDirectory(){
+  if(savedDirHandle) return savedDirHandle;
+  try{
+    savedDirHandle = await window.showDirectoryPicker({
+      id: 'clayens-export-dir',
+      startIn: 'desktop'
+    });
+    updateSaveLocationNote();
+    return savedDirHandle;
+  } catch(err){
+    return null;
+  }
+}
+
+function updateSaveLocationNote(){
+  const el = document.getElementById('saveLocationNote');
+  if(!el) return;
+  if(savedDirHandle){
+    el.innerHTML = `📁 Dossier d'enregistrement actif : <b>${savedDirHandle.name}</b> — <a href="#" onclick="changeSaveDirectory();return false;" style="color:var(--orange);">changer</a>`;
+  } else if(fsApiSupported){
+    el.innerHTML = `📁 Aucun dossier sélectionné — le premier enregistrement vous demandera de choisir l'emplacement (ex. disque C:).`;
+  } else {
+    el.innerHTML = `⚠️ Votre navigateur ne supporte pas la sélection de dossier direct : les fichiers seront téléchargés dans le dossier de téléchargement par défaut.`;
+  }
+}
+
+async function changeSaveDirectory(){
+  savedDirHandle = null;
+  await getSaveDirectory();
+}
+
+async function writeFileToDirectory(filename, jsonStr){
+  const dirHandle = await getSaveDirectory();
+  if(!dirHandle) return false;
+  try{
+    const fileHandle = await dirHandle.getFileHandle(filename, {create:true});
+    const writable = await fileHandle.createWritable();
+    await writable.write(jsonStr);
+    await writable.close();
+    return true;
+  } catch(err){
+    console.error('Erreur écriture fichier:', err);
+    return false;
+  }
+}
+
+function downloadFallback(filename, jsonStr){
+  const blob = new Blob([jsonStr], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function exportJSON(data){
+  const payload = buildExportPayload(data);
+  const jsonStr = JSON.stringify(payload, null, 2);
+  const safeOF = data.of.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const dateStr = new Date().toISOString().replace(/[:.]/g,'-');
+  const filename = `export_${safeOF}_${dateStr}.json`;
+
+  let writtenDirectly = false;
+  if(fsApiSupported){
+    writtenDirectly = await writeFileToDirectory(filename, jsonStr);
+  }
+  if(!writtenDirectly){
+    downloadFallback(filename, jsonStr);
+  }
+  data.exportFilename = filename;
+  data.exportMode = writtenDirectly ? 'direct' : 'telechargement';
+}
+
+async function redownloadExport(idx){
+  const item = history_[idx];
+  if(!item) return;
+  const payload = buildExportPayload(item);
+  const jsonStr = JSON.stringify(payload, null, 2);
+  const filename = item.exportFilename || 'export.json';
+  let writtenDirectly = false;
+  if(fsApiSupported && savedDirHandle){
+    writtenDirectly = await writeFileToDirectory(filename, jsonStr);
+  }
+  if(!writtenDirectly){
+    downloadFallback(filename, jsonStr);
+  }
+}
+
+function renderHistory(){
+  const container = document.getElementById('historyList');
+  if(history_.length === 0){
+    container.innerHTML = '<em style="color:#999;font-size:13px;">Aucune intervention enregistrée pour le moment.</em>';
+    return;
+  }
+  container.innerHTML = history_.map((item, idx)=>{
+    const paramsList = Object.entries(item.parametres).map(([k,v])=>{
+      const unite = v.unite ? ` <span style="color:#999;">(${v.unite})</span>` : '';
+      const vCopy = {...v};
+      delete vCopy.unite;
+      return `<div style="margin-top:4px;"><b>${k}</b>${unite} : ${JSON.stringify(vCopy)}</div>`;
+    }).join('');
+    const commentaireAutreHtml = item.commentaireAutre
+      ? `<div style="margin-top:6px;font-style:italic;color:#555;">Précision "Autre" : "${item.commentaireAutre}"</div>`
+      : '';
+    const commentaireGeneralHtml = item.commentaireGeneral
+      ? `<div style="margin-top:6px;font-style:italic;color:#555;">Commentaire : "${item.commentaireGeneral}"</div>`
+      : '';
+    const modeLabel = item.exportMode === 'direct' ? 'enregistré directement dans le dossier choisi' : 'téléchargé';
+    const exportHtml = item.exportFilename
+      ? `<div style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+           <span style="font-size:12px;color:#2e9e4f;">📄 Export JSON ${modeLabel} : <code>${item.exportFilename}</code></span>
+           <button type="button" class="btn-outline btn" style="width:auto;padding:6px 12px;font-size:12px;" onclick="redownloadExport(${idx})">⬇ Réenregistrer</button>
+         </div>`
+      : '';
+    return `<div class="history-item">
+      <div class="h-top"><span>OF ${item.of} — ${item.rebut}</span><span style="color:#999;font-weight:400;">${item.timestamp}</span></div>
+      <div style="color:#999;">Régleur : ${item.regleur}</div>
+      ${commentaireAutreHtml}
+      ${commentaireGeneralHtml}
+      ${paramsList}
+      ${exportHtml}
+    </div>`;
+  }).join('');
+}
+
+function showToast(){
+  const t = document.getElementById('toast');
+  t.style.display = 'block';
+  setTimeout(()=>{ t.style.display = 'none'; }, 2500);
+}
+
+function clearFormKeepOF(){
+  document.getElementById('rebutSelect').value = '';
+  document.getElementById('commentaireGeneral').value = '';
+  autreComment = '';
+  document.querySelectorAll('[data-field]').forEach(inp=> inp.value = '');
+}
+
+function resetForm(){
+  clearFormKeepOF();
+}
+
+// Initialisation de la note d'emplacement d'enregistrement au chargement
+updateSaveLocationNote();
+</script>
+
+</body>
+</html>
