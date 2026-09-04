@@ -1,37 +1,30 @@
 # A9 Tableau de bord
 
-Application web de suivi des modifications apportées aux paramètres du process d'injection pendant une production.
+Application web autonome de suivi des modifications de paramètres du process d'injection réalisées pendant une production.
 
-Le projet **A9 Tableau de bord** a été conçu dans le cadre du programme MIS de CLAYENS afin de fournir aux régleurs un outil simple, visuel et utilisable depuis un navigateur web. L'application permet d'enregistrer les ajustements réalisés sur une presse à injecter lors de la résolution d'un problème qualité, puis de générer un fichier JSON destiné à l'alimentation d'une data plateforme.
+Le projet **A9 Tableau de bord** permet au régleur de déclarer une intervention, de saisir les valeurs avant et après modification, de contrôler le respect du remplissage dynamique et de générer deux fichiers JSON : un export A9 détaillé et un export simplifié destiné à l'intégration dans une base SQL par le fournisseur.
+
+## Statut du projet
+
+- **Version fonctionnelle :** 1.1
+- **Application principale :** `index.html`
+- **Technologies :** HTML5, CSS3 et JavaScript natif
+- **Dépendances :** aucune
+- **Hébergement possible :** GitHub Pages ou serveur web statique
+- **Navigateurs recommandés :** Google Chrome ou Microsoft Edge
 
 ## Objectifs
 
 - Identifier l'ordre de fabrication concerné.
-- Identifier le régleur ayant réalisé l'intervention.
-- Sélectionner le type de rebut constaté.
-- Enregistrer uniquement les paramètres réellement modifiés.
+- Identifier le régleur par son matricule.
+- Déclarer le type de rebut et un commentaire éventuel.
+- Enregistrer les paramètres réellement modifiés.
 - Conserver les valeurs avant et après modification.
-- Gérer les paramètres comportant plusieurs paliers, zones ou thermocouples.
-- Vérifier le respect du remplissage dynamique avant l'enregistrement définitif.
-- Générer un fichier JSON exploitable par la data plateforme.
-- Afficher un historique des interventions réalisées pendant la session.
-
-## Technologies
-
-L'application est volontairement autonome et légère :
-
-- HTML5
-- CSS3
-- JavaScript natif
-- Aucun framework
-- Aucune dépendance à installer
-- Compatible avec un hébergement statique, notamment GitHub Pages
-
-Le fichier principal de l'application est :
-
-```text
-index.html
-```
+- Gérer les paliers, zones de température et thermos ajoutés dynamiquement.
+- Vérifier le respect du remplissage dynamique avant l'enregistrement.
+- Afficher un historique détaillé pendant la session.
+- Générer deux fichiers JSON destinés à des usages différents.
+- Faciliter un déploiement identique sur plusieurs sites CLAYENS.
 
 ## Utilisation
 
@@ -40,23 +33,44 @@ index.html
 Au démarrage, l'utilisateur renseigne :
 
 - le numéro d'OF ;
-- le nom et le prénom du régleur.
+- le matricule du régleur.
 
-Le numéro d'OF est contrôlé selon le format suivant :
+#### Format du numéro d'OF
 
-```text
-FF26201122/20
-```
-
-Règle appliquée :
+Le format est contrôlé selon la règle suivante :
 
 ```text
 2 lettres + 8 chiffres + / + 2 chiffres
 ```
 
+Exemple :
+
+```text
+FF26201122/20
+```
+
+Le séparateur `/` est ajouté automatiquement pendant la saisie.
+
+#### Matricule du régleur
+
+Le champ **Matricule régleur** :
+
+- est obligatoire ;
+- accepte uniquement des chiffres ;
+- supprime automatiquement les lettres, espaces et caractères spéciaux ;
+- utilise un clavier numérique sur les terminaux compatibles.
+
+Exemple :
+
+```text
+12345
+```
+
+Le matricule est ensuite affiché dans l'intervention, dans l'historique et dans les deux exports JSON.
+
 ### 2. Déclaration du rebut
 
-Le régleur sélectionne un type de rebut parmi la liste prédéfinie :
+Le régleur sélectionne un type de rebut parmi la liste :
 
 - Bavure
 - Retassure
@@ -69,19 +83,19 @@ Le régleur sélectionne un type de rebut parmi la liste prédéfinie :
 - Coloration
 - Autre
 
-Un champ commentaire général est disponible.
+Un commentaire général facultatif peut être ajouté.
 
-Lorsque le type de rebut **Autre** est sélectionné, une fenêtre demande obligatoirement une description complémentaire.
+Lorsque **Autre** est sélectionné, une fenêtre demande obligatoirement une précision complémentaire.
 
-### 3. Saisie des modifications process
+## Organisation des paramètres
 
-Les paramètres sont organisés en trois onglets principaux :
+Les paramètres sont répartis dans trois onglets principaux :
 
 - ⚙️ Process injection
 - 🌡️ Températures
 - 🏭 Moule
 
-#### Process injection
+### Process injection
 
 Sous-onglets :
 
@@ -89,9 +103,9 @@ Sous-onglets :
 - ⚡ Dynamique
 - ⏱️ Maintien
 
-##### Dosage
+#### Dosage
 
-| Paramètre | Type de saisie | Unité(s) |
+| Paramètre | Saisie | Unité(s) |
 |---|---|---|
 | Course de dosage | Avant / Après | mm ou cm³ |
 | Vitesse de rotation | Paliers ajoutables | Tr/min ou m/s |
@@ -101,9 +115,9 @@ Sous-onglets :
 
 La **Course de dosage** est affichée en première position.
 
-##### Dynamique
+#### Dynamique
 
-| Paramètre | Type de saisie | Unité(s) |
+| Paramètre | Saisie | Unité(s) |
 |---|---|---|
 | Vitesse | Paliers ajoutables | mm/s ou cm³/s |
 | Course | Paliers ajoutables | mm ou cm³ |
@@ -111,47 +125,47 @@ La **Course de dosage** est affichée en première position.
 | Point de commutation en course | Avant / Après | mm ou cm³ |
 | Point de commutation en pression | Avant / Après | bar ou bar spécifique |
 
-##### Maintien
+#### Maintien
 
-| Paramètre | Type de saisie | Unité(s) |
+| Paramètre | Saisie | Unité(s) |
 |---|---|---|
-| Pression | Paliers ajoutables | bar ou bar spécifique |
-| Temps | Paliers ajoutables | secondes |
+| Pression (Maintien) | Paliers ajoutables | bar ou bar spécifique |
+| Temps (Maintien) | Paliers ajoutables | secondes |
 | Matelas | Avant / Après | mm ou cm³ |
 
-#### Températures
+### Températures
 
 Sous-onglets :
 
 - 🔥 Fourreau
 - ♨️ Bloc chaud
 
-##### Température fourreau
+#### Température fourreau
 
 - Buse
 - Zone 1 à Zone 6 par défaut
-- Possibilité d'ajouter des zones supplémentaires
+- Zones supplémentaires ajoutables
 - Valeurs Avant / Après
 - Unité : °C
 
-##### Température bloc chaud
+#### Température bloc chaud
 
 - Zone 1 à Zone 16 par défaut
-- Possibilité d'ajouter des zones supplémentaires
+- Zones supplémentaires ajoutables
 - Valeurs Avant / Après
 - Unité : °C
 
-#### Moule
+### Moule
 
-| Paramètre | Type de saisie | Unité(s) |
+| Paramètre | Saisie | Unité(s) |
 |---|---|---|
 | Force de verrouillage | Avant / Après | Tonne ou KN |
 | Température partie fixe | Thermos ajoutables | °C |
 | Température partie mobile | Thermos ajoutables | °C |
 
-Chaque partie du moule possède un thermo par défaut et permet d'en ajouter d'autres.
+Un thermo est affiché par défaut pour chaque partie du moule. Des thermos supplémentaires peuvent être ajoutés.
 
-## Règle Avant / Après
+## Règle de saisie Avant / Après
 
 Une valeur **Après** ne peut pas être saisie tant que la valeur **Avant** correspondante n'a pas été renseignée.
 
@@ -159,12 +173,12 @@ Comportement :
 
 1. Le champ Après est désactivé par défaut.
 2. La saisie de la valeur Avant déverrouille le champ Après.
-3. L'effacement de la valeur Avant vide et reverrouille automatiquement le champ Après.
-4. Cette règle s'applique aux paramètres simples, aux paliers, aux zones de température et aux thermos.
+3. Si la valeur Avant est effacée, le champ Après est vidé et reverrouillé.
+4. La règle s'applique aux paramètres simples, paliers, zones et thermos.
 
 ## Avertissement sur les paramètres majeurs
 
-L'application affiche le message suivant juste au-dessus des onglets :
+Le message suivant est affiché au-dessus des onglets :
 
 > ⚠️ **Attention :** les paramètres majeurs suivants : **temps d'injection, température matière, outillages, pression de maintien et tolérances matelas** ne peuvent faire l'objet d'aucune modification autre que dans les tolérances définies sans validation interne, qualité, fabrication et externe client. **(Si exigence contractuelle)**
 
@@ -172,155 +186,167 @@ Cet avertissement est informatif et ne bloque pas la saisie.
 
 ## Contrôle du remplissage dynamique
 
-Lorsque le régleur clique sur **Enregistrer**, une fenêtre obligatoire apparaît avec la question :
+Lors du clic sur **Enregistrer**, une fenêtre obligatoire demande :
 
 ```text
 Remplissage dynamique respecté ?
 ```
 
-Trois réponses sont possibles :
+Réponses possibles :
 
-- C : Conforme
-- NC : Non conforme
-- NA : Non applicable
+| Réponse | Signification | Code export SQL |
+|---|---|---:|
+| C | Conforme | 1 |
+| NC | Non conforme | 0 |
+| NA | Non applicable | 2 |
 
-La fenêtre affiche également le message :
+La fenêtre contient également le message :
 
 > Si le remplissage dynamique n'est pas respecté, alerter le service qualité et le chef d'équipe pour décision.
 
-L'intervention ne peut pas être enregistrée tant qu'une réponse n'a pas été sélectionnée.
+L'intervention n'est pas enregistrée tant qu'une réponse n'a pas été sélectionnée.
 
-La réponse est :
+## Historique de session
 
-- conservée dans l'historique de session ;
-- ajoutée au fichier JSON exporté dans le champ `RemplissageDynamique`.
-
-## Export JSON
-
-À la validation d'une intervention, l'application génère un fichier JSON contenant :
+Après l'enregistrement, l'historique affiche :
 
 - le numéro d'OF ;
-- la réponse au contrôle du remplissage dynamique ;
-- les paramètres modifiés ;
-- les unités sélectionnées ;
-- les valeurs Avant et Après ;
-- les paliers, zones et thermos concernés.
+- le type de rebut ;
+- le matricule du régleur ;
+- la réponse au remplissage dynamique ;
+- chaque paramètre modifié ;
+- le palier, la zone ou le thermo concerné ;
+- la valeur Avant avec son unité ;
+- la valeur Après avec son unité ;
+- les noms des deux fichiers JSON générés ;
+- la date et l'heure de l'intervention.
+
+Exemple :
+
+```text
+OF FF26100011/20 - Bavure
+Matricule régleur : 12345
+Remplissage dynamique : C
+
+Course de dosage
+Avant : 100 mm
+Après : 150 mm
+```
+
+L'historique est stocké uniquement dans la mémoire de la page. Il est perdu lors d'une actualisation ou de la fermeture du navigateur.
+
+## Exports JSON
+
+Chaque enregistrement produit deux fichiers JSON dans le même dossier.
+
+### Export JSON A9 détaillé
+
+Nom du fichier :
+
+```text
+export_A9_NUMERO_OF_HORODATAGE.json
+```
 
 Exemple :
 
 ```json
 {
-  "NumeroOF": "FF26201122/20",
+  "NumeroOF": "FF26100011/20",
+  "MATRICULE_REGLEUR": "12345",
   "RemplissageDynamique": "C",
   "ParametresModifies": {
     "Course de dosage": {
-      "Avant": "35",
-      "Après": "32",
+      "Avant": "100",
+      "Après": "150",
       "unite": "mm"
-    },
-    "Pression (Maintien)": {
-      "Palier 1": {
-        "Avant": "450",
-        "Après": "470"
-      },
-      "unite": "bar spécifique"
     }
   }
 }
 ```
 
-Seuls les paramètres renseignés sont inclus dans le fichier.
+Cet export conserve la structure complète des modifications A9.
 
-## Nom du fichier exporté
+### Export JSON destiné à l'intégration SQL
 
-Le fichier est nommé automatiquement selon le principe suivant :
+Nom du fichier :
 
 ```text
-export_NUMERO_OF_HORODATAGE.json
+export_SQL_NUMERO_OF_HORODATAGE.json
 ```
 
 Exemple :
 
-```text
-export_FF26201122_20_2026-09-01T13-45-12-000Z.json
+```json
+{
+  "OF_REFOF": "FF26100011/20",
+  "MATRICULE_REGLEUR": "12345",
+  "DATE_SAISIE": "2026-09-04T14:11:52.736Z",
+  "VERSION_A9": "1.1",
+  "INTER_Anomalie": "Bavure - Ligne de joint visible",
+  "INTER_Action": "Course de dosage valeur avant 100 mm valeur après 150 mm",
+  "INTER_RemplissageDyn": 1
+}
 ```
+
+#### Construction de `INTER_Anomalie`
+
+Le champ est constitué de :
+
+```text
+Type de rebut - précision Autre éventuelle - commentaire général éventuel
+```
+
+Exemples :
+
+```text
+Bavure - Ligne de joint visible
+Autre - Marbrure sur face visible - Apparition après redémarrage
+```
+
+#### Construction de `INTER_Action`
+
+Toutes les modifications sont converties en texte lisible et séparées par ` ; `.
+
+Exemple :
+
+```text
+Course de dosage valeur avant 100 mm valeur après 150 mm ; Pression (Maintien) Palier 1 valeur avant 450 bar spécifique valeur après 470 bar spécifique
+```
+
+Les paramètres simples, paliers, zones et thermos sont pris en charge.
 
 ## Choix du dossier d'enregistrement
 
 Lorsque le navigateur prend en charge la **File System Access API**, l'application demande de sélectionner un dossier lors du premier enregistrement.
 
-Le dossier sélectionné est utilisé pour les enregistrements suivants pendant la session du navigateur.
+- Les deux fichiers JSON sont enregistrés dans ce dossier.
+- Le même dossier est réutilisé pendant la session.
+- Le dossier actif est affiché dans l'application.
 
-Un message indique le dossier actif.
+Si la sélection directe d'un dossier n'est pas disponible ou si elle est annulée, le navigateur télécharge les deux fichiers séparément.
 
-Si l'accès direct au système de fichiers n'est pas pris en charge ou si la sélection est annulée, l'application utilise le téléchargement classique du navigateur.
+### Recommandation Chrome
 
-### Navigateur recommandé
+Google Chrome a été validé avec la génération des deux fichiers JSON.
 
-- Microsoft Edge
-- Google Chrome
+Selon la configuration du navigateur, il peut être nécessaire d'autoriser les téléchargements multiples pour le site A9.
 
-La sélection directe d'un dossier peut ne pas être disponible dans tous les navigateurs ou dans certains contextes d'hébergement.
+## Nommage des fichiers
 
-## Historique de session
+Le numéro d'OF et l'horodatage sont intégrés dans les noms de fichiers.
 
-Après l'enregistrement, l'historique affiche notamment :
-
-- le numéro d'OF ;
-- le type de rebut ;
-- le nom du régleur ;
-- la réponse au remplissage dynamique ;
-- la liste des paramètres modifiés ;
-- la date et l'heure ;
-- le nom du fichier JSON généré.
-
-L'historique est stocké uniquement dans la mémoire de la page. Il est perdu lorsque la page est actualisée ou fermée.
-
-## Hébergement GitHub Pages
-
-Le projet peut être hébergé gratuitement sur GitHub Pages.
-
-Dépôt du projet :
+Exemples :
 
 ```text
-https://github.com/VGRIGI/A9-Tableau-de-bord
+export_A9_FF26100011_20_2026-09-04T14-11-52-736Z.json
+export_SQL_FF26100011_20_2026-09-04T14-11-52-736Z.json
 ```
 
-Adresse GitHub Pages attendue :
-
-```text
-https://vgrigi.github.io/A9-Tableau-de-bord/
-```
-
-### Publication
-
-Dans les paramètres du dépôt GitHub :
-
-1. Ouvrir **Settings**.
-2. Sélectionner **Pages**.
-3. Choisir **Deploy from a branch**.
-4. Sélectionner la branche `main`.
-5. Sélectionner le dossier `/ (root)`.
-6. Enregistrer.
-
-À chaque remplacement du fichier `index.html` sur la branche `main`, GitHub Pages republie automatiquement l'application.
-
-## Mise à jour du projet sur GitHub
-
-Pour déployer une nouvelle version depuis l'interface web GitHub :
-
-1. Télécharger le nouveau fichier généré.
-2. Le renommer en `index.html` si nécessaire.
-3. Ouvrir le dépôt GitHub.
-4. Ouvrir le fichier `index.html` existant.
-5. Utiliser **Edit this file** ou **Upload files**.
-6. Remplacer le contenu ou le fichier.
-7. Créer un commit sur la branche `main`.
-8. Actualiser GitHub Pages avec `Ctrl + F5` si l'ancienne version reste en cache.
+Les caractères non compatibles avec les noms de fichiers sont remplacés par `_`.
 
 ## Charte graphique
 
-La version actuelle conserve la disposition historique de l'application et utilise la palette suivante :
+Palette actuelle :
 
 | Usage | Couleur |
 |---|---|
@@ -333,32 +359,43 @@ La version actuelle conserve la disposition historique de l'application et utili
 | Texte désactivé | `#98A2B3` |
 | Texte secondaire | `#667085` |
 
-Des pictogrammes sont présents uniquement dans les onglets principaux et les sous-onglets.
+Les pictogrammes sont utilisés uniquement dans les onglets principaux et les sous-onglets.
 
-## Limites actuelles
+## Installation et hébergement
 
-- L'application ne possède pas de base de données.
-- L'historique n'est pas conservé après fermeture ou actualisation de la page.
-- L'identité du régleur est saisie manuellement.
-- Aucun lien avec SIDAQ n'est actif dans cette version.
-- Aucun lien avec Cyclades n'est actif dans cette version.
-- L'envoi vers la data plateforme repose actuellement sur un fichier JSON et non sur une API ou un broker MQTT.
-- Le dépôt et le site GitHub Pages sont publics si aucune authentification supplémentaire n'est mise en place.
+L'application est autonome. Il suffit de mettre à disposition :
 
-## Évolutions possibles
+```text
+index.html
+```
 
-Les évolutions suivantes ne font pas partie de la version actuelle mais peuvent être étudiées ultérieurement :
+L'application peut être :
 
-- envoi automatique du JSON vers une API ;
-- publication MQTT vers la data plateforme ;
-- stockage permanent des interventions ;
-- identification du régleur par badge ou compte utilisateur ;
-- récupération automatique de l'OF ;
-- connexion au SIDAQ ;
-- connexion à Cyclades ;
-- exploitation Power BI ;
-- intégration native dans la GED ;
-- gestion des droits et validations qualité.
+- ouverte localement dans un navigateur ;
+- publiée sur un serveur web statique ;
+- hébergée sur GitHub Pages.
+
+### Dépôt GitHub
+
+```text
+https://github.com/VGRIGI/A9-Tableau-de-bord
+```
+
+### Adresse GitHub Pages prévue
+
+```text
+https://vgrigi.github.io/A9-Tableau-de-bord/
+```
+
+## Mise à jour sur GitHub
+
+1. Télécharger la nouvelle version du fichier HTML.
+2. Renommer le fichier en `index.html` si nécessaire.
+3. Ouvrir le dépôt GitHub.
+4. Remplacer le fichier `index.html` existant.
+5. Créer un commit sur la branche `main`.
+6. Attendre la republication de GitHub Pages.
+7. Utiliser `Ctrl + F5` pour actualiser sans cache.
 
 ## Structure du dépôt
 
@@ -368,14 +405,58 @@ A9-Tableau-de-bord/
 └── README.md
 ```
 
-## Statut
+## Limites actuelles
 
-Prototype fonctionnel destiné à :
+- Pas de base de données intégrée dans A9.
+- Pas d'appel direct à une API SQL.
+- Historique non persistant après fermeture de la page.
+- Matricule saisi manuellement et non contrôlé dans une base RH.
+- Pas de connexion directe à SIDAQ ou Cyclades.
+- Le fournisseur doit prendre en charge la lecture du second JSON et l'intégration SQL.
+- Le dossier sélectionné est conservé uniquement pendant la session du navigateur.
+- Un hébergement GitHub Pages public expose le code source de l'application.
 
-- valider l'ergonomie avec les régleurs ;
-- cadrer les données process à enregistrer ;
-- valider le format JSON avec les équipes data ;
-- préparer l'intégration dans la GED et la data plateforme.
+## Stratégie d'intégration multi-sites
+
+Le déploiement multi-sites repose sur une approche par fichiers :
+
+```text
+A9 Tableau de bord
+├── JSON A9 détaillé
+└── JSON SQL simplifié
+    └── traitement fournisseur
+        └── insertion dans la base locale du site
+```
+
+Cette stratégie évite de déployer sur chaque site :
+
+- une API spécifique ;
+- un site IIS applicatif ;
+- des comptes de service SQL ;
+- des certificats et règles réseau supplémentaires.
+
+Le fournisseur est responsable de l'intégration du second JSON et de la duplication de la solution sur les différents sites.
+
+## Évolutions possibles
+
+- Contrôle du matricule dans une base RH.
+- Lecture du matricule par badge.
+- Lecture de l'OF par code-barres ou QR code.
+- Stockage permanent de l'historique.
+- Envoi automatique des fichiers vers un dossier réseau.
+- Ajout d'un accusé de traitement du fournisseur.
+- Ajout d'un identifiant unique d'intervention.
+- Gestion de version du schéma JSON.
+- Exploitation des données dans Power BI.
+
+## Fichiers du projet
+
+| Fichier | Rôle |
+|---|---|
+| `index.html` | Application A9 complète |
+| `README.md` | Documentation fonctionnelle et technique |
+| `export_A9_*.json` | Export détaillé de l'intervention |
+| `export_SQL_*.json` | Export simplifié pour intégration fournisseur |
 
 ## Responsable projet
 
